@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HydraMind — Напоминание о воде</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <main class="container">
+        <header>
+          <h1>HydraMind</h1>
+          <p class="subtitle">Время пить воду</p>
+        </header>
+
+        <section class="timer-section">
+          <div class="timer-visual">
+            <div class="water-level" id="waterLevel"></div>
+            <div class="timer-display" id="timerDisplay">10:00</div>
+          </div>
+          <button id="startBtn" class="primary-btn">Старт</button>
+        </section>
+
+        <section class="settings-card">
+          <div class="setting-item">
+            <label for="intervalRange">Интервал: <span id="intervalValue">10</span> мин</label>
+            <input type="range" id="intervalRange" min="5" max="15" value="10" step="1">
+          </div>
+
+          <div class="setting-item">
+            <label>Звук оповещения</label>
+            <div class="sound-selector">
+              <button class="sound-chip active" data-sound="drop">Капля</button>
+              <button class="sound-chip" data-sound="bell">Колокольчик</button>
+              <button class="sound-chip" data-sound="pulse">Сигнал</button>
+            </div>
+            <button id="testSoundBtn" class="secondary-btn">Проверить звук</button>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
