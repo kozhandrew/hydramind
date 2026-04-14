@@ -1,5 +1,17 @@
 import './style.css'
 
+// --- Service Worker & Wake Lock ---
+let swRegistration = null;
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    swRegistration = reg;
+  });
+}
+// Silent audio loop to prevent iOS/Android from sleeping the JS thread
+const noSleepAudio = document.createElement('audio');
+noSleepAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+noSleepAudio.loop = true;
+
 // --- Web Audio API Synth ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -146,6 +158,14 @@ function updateTimer() {
   if (timeRemainingSec <= 0) {
     // Time's up!
     playSound(selectedSound);
+    if ('Notification' in window && Notification.permission === 'granted' && swRegistration) {
+      swRegistration.showNotification('HydraMind', {
+        body: 'Время выпить стакан воды! 💧',
+        icon: '/icon-192.png',
+        vibrate: [300, 100, 300, 100, 300],
+        requireInteraction: true
+      });
+    }
     // Restart interval automatically
     timeRemainingSec = currentIntervalMin * 60;
   }
@@ -165,10 +185,15 @@ function toggleTimer() {
   if (audioCtx.state === 'suspended') {
     audioCtx.resume();
   }
+  
+  if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
 
   if (isRunning) {
     // Stop
     timerWorker.postMessage({ command: 'stop' });
+    noSleepAudio.pause();
     isRunning = false;
     startBtn.innerText = 'Старт';
     startBtn.classList.remove('running');
@@ -180,6 +205,8 @@ function toggleTimer() {
     startBtn.innerText = 'Стоп';
     startBtn.classList.add('running');
     intervalRange.disabled = true; // Запрещаем менять интервал во время работы
+    
+    noSleepAudio.play().catch(e => console.log('Audio loop restricted', e));
     
     // Если еще не запущен, сразу обновляем
     timerDisplay.innerText = formatTime(timeRemainingSec);
